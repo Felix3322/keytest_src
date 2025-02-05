@@ -50,29 +50,21 @@
 </head>
 <body>
     <h2>OpenAI API Key Checker</h2>
-    <table border="1" cellpadding="5">
-        <tr>
-            <td>Enter API Key:</td>
-            <td><input type="text" id="apiKey" size="40" placeholder="sk-..."></td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
-                <button onclick="checkAPIKey()">Check</button>
-                <button onclick="clearInput()">Clear</button>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
-                <p id="result"></p>
-            </td>
-        </tr>
-    </table>
+
+    <p>Enter API Key:</p>
+    <input type="text" id="apiKey" size="50" placeholder="sk-...">
+    <br><br>
+    <button onclick="checkAPIKey()">Check</button>
+    <button onclick="clearInput()">Clear</button>
+    <br><br>
+    <p id="result"></p>
+
     <p>Open source project for security verification:</p>
-    <p>
-        <a href="https://github.com/Felix3322/keytest_src" target="_blank">
-            <img src="IMG_3788.png" width="40" height="40" alt="GitHub Repository">
-        </a>
-    </p>
-    <p>This tool does not store your API Key.</p>
+    <a href="https://github.com/Felix3322/keytest_src" target="_blank">
+        <img src="IMG_3788.png" width="40" height="40" alt="GitHub Repository">
+    </a>
+    
+    <hr>
+    <p>Copyright © Felix3322. Source code is for inspection only and may not be used for other purposes.</p>
 </body>
 </html>
