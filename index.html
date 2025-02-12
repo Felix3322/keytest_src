@@ -4,11 +4,107 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenAI API Key Checker</title>
+  <style>
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    /* Global Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    /* Container */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #4CAF50;
+    }
+    /* Grouping and Form Styles */
+    .group {
+      margin-bottom: 20px;
+    }
+    .group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .group input[type="text"],
+    .group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 1em;
+    }
+    fieldset.group {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 15px;
+    }
+    fieldset.group legend {
+      font-weight: bold;
+      padding: 0 5px;
+    }
+    /* Button Styles */
+    .group button {
+      padding: 10px 15px;
+      margin-right: 10px;
+      border: none;
+      background: #4CAF50;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .group button:hover {
+      background: #45a049;
+    }
+    /* Result Display */
+    .result {
+      padding: 15px;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-top: 10px;
+      min-height: 40px;
+    }
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 0.9em;
+      margin-top: 20px;
+      color: #777;
+    }
+    .footer a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+    @media (max-width: 600px) {
+      .group button {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+    }
+  </style>
   <script>
-    // Check using the models endpoint
+    // Check API key using the /v1/models endpoint
     async function checkAPIKeyModels() {
       var apiKey = document.getElementById("apiKey").value;
-      // Use the provided API base or default to OpenAI's official base
       var apiBase = document.getElementById("apiBase").value || "https://api.openai.com";
       var resultDiv = document.getElementById("result");
 
@@ -18,7 +114,6 @@
       }
 
       resultDiv.innerHTML = "Checking via models endpoint...";
-
       try {
         const response = await fetch(apiBase + "/v1/models", {
           method: "GET",
@@ -26,9 +121,7 @@
             "Authorization": "Bearer " + apiKey
           }
         });
-
         const data = await response.json();
-
         if (response.ok) {
           resultDiv.innerHTML = "API Key is valid (Models endpoint).";
         } else {
@@ -40,7 +133,7 @@
       }
     }
 
-    // Load models for selection using the models endpoint
+    // Load models for selection using the /v1/models endpoint
     async function loadModels() {
       var apiKey = document.getElementById("apiKey").value;
       var apiBase = document.getElementById("apiBase").value || "https://api.openai.com";
@@ -53,7 +146,6 @@
       }
 
       resultDiv.innerHTML = "Loading model list...";
-
       try {
         const response = await fetch(apiBase + "/v1/models", {
           method: "GET",
@@ -61,19 +153,17 @@
             "Authorization": "Bearer " + apiKey
           }
         });
-
         const data = await response.json();
-
         if (response.ok) {
-          // Clear the dropdown first
+          // Clear existing options
           modelSelect.innerHTML = "";
-          // Add a default option
+          // Default option
           var defaultOption = document.createElement("option");
           defaultOption.value = "";
           defaultOption.text = "Select a model";
           modelSelect.appendChild(defaultOption);
 
-          // Populate the dropdown with fetched models (if any)
+          // Populate dropdown with fetched models
           if (data.data && Array.isArray(data.data)) {
             data.data.forEach(function(model) {
               var option = document.createElement("option");
@@ -94,7 +184,7 @@
       }
     }
 
-    // Check using a text completion test with model selection
+    // Check API key using a text completion test with model selection
     async function checkAPIKeyTextTest() {
       var apiKey = document.getElementById("apiKey").value;
       var apiBase = document.getElementById("apiBase").value || "https://api.openai.com";
@@ -105,14 +195,12 @@
         return;
       }
 
-      // Determine which model to use:
-      // Priority: custom model input > dropdown selection > default model
+      // Determine the model to use (priority: custom input > dropdown > default)
       var customModel = document.getElementById("customModel").value.trim();
       var selectedModel = document.getElementById("modelSelect").value;
       var modelToUse = customModel || selectedModel || "text-davinci-003";
 
       resultDiv.innerHTML = "Checking via text test using model: " + modelToUse + "...";
-
       try {
         const response = await fetch(apiBase + "/v1/completions", {
           method: "POST",
@@ -127,9 +215,7 @@
             temperature: 0
           })
         });
-
         const data = await response.json();
-
         if (response.ok) {
           resultDiv.innerHTML = "API Key is valid (Text test using model: " + modelToUse + ").";
         } else {
@@ -141,71 +227,71 @@
       }
     }
 
-    // Clear all input fields and result display
+    // Clear all input fields and the result display
     function clearInput() {
       document.getElementById("apiKey").value = "";
       document.getElementById("apiBase").value = "";
-      document.getElementById("modelSelect").innerHTML = "";
+      document.getElementById("modelSelect").innerHTML = "<option value=''>Select a model</option>";
       document.getElementById("customModel").value = "";
       document.getElementById("result").innerHTML = "";
     }
   </script>
 </head>
 <body>
-  <h2>OpenAI API Key Checker</h2>
+  <div class="container">
+    <h2>OpenAI API Key Checker</h2>
 
-  <!-- API Base Input Field -->
-  <p>API Base (optional):</p>
-  <input type="text" id="apiBase" size="50" placeholder="https://api.openai.com">
-  <br><br>
+    <!-- API Settings Group -->
+    <div class="group">
+      <label for="apiBase">API Base (optional):</label>
+      <input type="text" id="apiBase" placeholder="https://api.openai.com">
+    </div>
+    <div class="group">
+      <label for="apiKey">Enter API Key:</label>
+      <input type="text" id="apiKey" placeholder="sk-...">
+    </div>
 
-  <!-- API Key Input Field -->
-  <p>Enter API Key:</p>
-  <input type="text" id="apiKey" size="50" placeholder="sk-...">
-  <br><br>
+    <!-- API Check Buttons -->
+    <div class="group">
+      <button onclick="checkAPIKeyModels()">Check (Models)</button>
+      <button onclick="checkAPIKeyTextTest()">Check (Text Test)</button>
+      <button onclick="clearInput()">Clear</button>
+    </div>
 
-  <!-- Buttons for checking methods -->
-  <button onclick="checkAPIKeyModels()">Check (Models)</button>
-  <button onclick="checkAPIKeyTextTest()">Check (Text Test)</button>
-  <button onclick="clearInput()">Clear</button>
-  <br><br>
+    <!-- Model Selection Group -->
+    <fieldset class="group">
+      <legend>Model Selection for Text Test</legend>
+      <button onclick="loadModels()">Load Models</button>
+      <label for="modelSelect">Choose from the list:</label>
+      <select id="modelSelect">
+        <option value="">Select a model</option>
+      </select>
+      <label for="customModel">Or enter a custom model (optional):</label>
+      <input type="text" id="customModel" placeholder="e.g., text-davinci-003">
+    </fieldset>
 
-  <!-- Model Selection for Text Test -->
-  <p>
-    <strong>Model Selection for Text Test:</strong>
-    <br>
-    <button onclick="loadModels()">Load Models</button>
-  </p>
-  <p>
-    Choose from the list:
-    <select id="modelSelect">
-      <!-- Model options will be populated here -->
-    </select>
-  </p>
-  <p>
-    Or enter a custom model (optional):
-    <input type="text" id="customModel" size="50" placeholder="e.g., text-davinci-003">
-  </p>
+    <!-- Result Display -->
+    <div class="group">
+      <div class="result" id="result"></div>
+    </div>
 
-  <!-- Result Display -->
-  <p id="result"></p>
-
-  <!-- Open source project reference -->
-  <p>Open source project for security verification:</p>
-  <a href="https://github.com/Felix3322/keytest_src" target="_blank">
-    <img src="IMG_3788.png" width="40" height="40" alt="GitHub Repository">
-  </a>
-
-  <hr>
-  <p>
-    Copyright © Felix3322.
-    Source code is for inspection only and may not be used for other purposes.
-  </p>
-
-  <!-- Note for third-party API bases -->
-  <p>
-    Note: When using a third-party API base, the models endpoint may misreport the key’s validity.
-    It is recommended to use the "Text Test" method.
-  </p>
+    <!-- Footer -->
+    <div class="footer">
+      <p>Open source project for security verification:</p>
+      <p>
+        <a href="https://github.com/Felix3322/keytest_src" target="_blank">
+          <img src="IMG_3788.png" width="40" height="40" alt="GitHub Repository">
+        </a>
+      </p>
+      <p>
+        Copyright © Felix3322.
+        Source code is for inspection only and may not be used for other purposes.
+      </p>
+      <p>
+        Note: When using a third-party API base, the models endpoint may misreport the key’s validity.
+        It is recommended to use the "Text Test" method.
+      </p>
+    </div>
+  </div>
 </body>
 </html>
