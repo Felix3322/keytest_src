@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OpenAI API Key Checker</title>
   <style>
     /* Basic Reset */
@@ -26,12 +26,12 @@
       background: #fff;
       padding: 25px 30px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     h2 {
       text-align: center;
       margin-bottom: 20px;
-      color: #4CAF50;
+      color: #4caf50;
     }
     /* Grouping and Form Styles */
     .group {
@@ -65,7 +65,7 @@
       padding: 10px 15px;
       margin-right: 10px;
       border: none;
-      background: #4CAF50;
+      background: #4caf50;
       color: #fff;
       border-radius: 4px;
       cursor: pointer;
@@ -91,7 +91,7 @@
       color: #777;
     }
     .footer a {
-      color: #4CAF50;
+      color: #4caf50;
       text-decoration: none;
     }
     @media (max-width: 600px) {
@@ -102,7 +102,7 @@
     }
   </style>
   <script>
-    // Check API key using the /v1/models endpoint
+    // Check API key using the /v1/models endpoint (free test)
     async function checkAPIKeyModels() {
       var apiKey = document.getElementById("apiKey").value;
       var apiBase = document.getElementById("apiBase").value || "https://api.openai.com";
@@ -118,8 +118,8 @@
         const response = await fetch(apiBase + "/v1/models", {
           method: "GET",
           headers: {
-            "Authorization": "Bearer " + apiKey
-          }
+            "Authorization": "Bearer " + apiKey,
+          },
         });
         const data = await response.json();
         if (response.ok) {
@@ -150,8 +150,8 @@
         const response = await fetch(apiBase + "/v1/models", {
           method: "GET",
           headers: {
-            "Authorization": "Bearer " + apiKey
-          }
+            "Authorization": "Bearer " + apiKey,
+          },
         });
         const data = await response.json();
         if (response.ok) {
@@ -165,7 +165,7 @@
 
           // Populate dropdown with fetched models
           if (data.data && Array.isArray(data.data)) {
-            data.data.forEach(function(model) {
+            data.data.forEach(function (model) {
               var option = document.createElement("option");
               option.value = model.id;
               option.text = model.id;
@@ -184,7 +184,7 @@
       }
     }
 
-    // Check API key using a text completion test with model selection
+    // Check API key using a text completion test (may incur token usage charges)
     async function checkAPIKeyTextTest() {
       var apiKey = document.getElementById("apiKey").value;
       var apiBase = document.getElementById("apiBase").value || "https://api.openai.com";
@@ -200,24 +200,49 @@
       var selectedModel = document.getElementById("modelSelect").value;
       var modelToUse = customModel || selectedModel || "text-davinci-003";
 
-      resultDiv.innerHTML = "Checking via text test using model: " + modelToUse + "...";
+      resultDiv.innerHTML =
+        "Checking via text test using model: " +
+        modelToUse +
+        "... (Note: This test uses tokens and may incur charges)";
+
+      let endpoint = "/v1/completions";
+      let requestBody = {};
+
+      // If the model appears to be a chat model, use the chat completions endpoint
+      if (
+        modelToUse.toLowerCase().includes("turbo") ||
+        modelToUse.toLowerCase().includes("gpt-4")
+      ) {
+        endpoint = "/v1/chat/completions";
+        requestBody = {
+          model: modelToUse,
+          messages: [{ role: "user", content: "Hello" }],
+          max_tokens: 5,
+          temperature: 0,
+        };
+      } else {
+        endpoint = "/v1/completions";
+        requestBody = {
+          model: modelToUse,
+          prompt: "Hello",
+          max_tokens: 5,
+          temperature: 0,
+        };
+      }
+
       try {
-        const response = await fetch(apiBase + "/v1/completions", {
+        const response = await fetch(apiBase + endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + apiKey
+            "Authorization": "Bearer " + apiKey,
           },
-          body: JSON.stringify({
-            model: modelToUse,
-            prompt: "Hello",
-            max_tokens: 5,
-            temperature: 0
-          })
+          body: JSON.stringify(requestBody),
         });
         const data = await response.json();
         if (response.ok) {
-          resultDiv.innerHTML = "API Key is valid (Text test using model: " + modelToUse + ").";
+          resultDiv.innerHTML =
+            "API Key is valid (Text test using model: " + modelToUse + ").";
         } else {
           var errorMsg = data.error ? data.error.message : "Invalid API Key.";
           resultDiv.innerHTML = "Error: " + errorMsg;
@@ -231,7 +256,8 @@
     function clearInput() {
       document.getElementById("apiKey").value = "";
       document.getElementById("apiBase").value = "";
-      document.getElementById("modelSelect").innerHTML = "<option value=''>Select a model</option>";
+      document.getElementById("modelSelect").innerHTML =
+        "<option value=''>Select a model</option>";
       document.getElementById("customModel").value = "";
       document.getElementById("result").innerHTML = "";
     }
@@ -244,17 +270,19 @@
     <!-- API Settings Group -->
     <div class="group">
       <label for="apiBase">API Base (optional):</label>
-      <input type="text" id="apiBase" placeholder="https://api.openai.com">
+      <input type="text" id="apiBase" placeholder="https://api.openai.com" />
     </div>
     <div class="group">
       <label for="apiKey">Enter API Key:</label>
-      <input type="text" id="apiKey" placeholder="sk-...">
+      <input type="text" id="apiKey" placeholder="sk-..." />
     </div>
 
     <!-- API Check Buttons -->
     <div class="group">
-      <button onclick="checkAPIKeyModels()">Check (Models)</button>
-      <button onclick="checkAPIKeyTextTest()">Check (Text Test)</button>
+      <button onclick="checkAPIKeyModels()">Check (Models - Free)</button>
+      <button onclick="checkAPIKeyTextTest()">
+        Check (Text Test - May incur token cost)
+      </button>
       <button onclick="clearInput()">Clear</button>
     </div>
 
@@ -267,7 +295,15 @@
         <option value="">Select a model</option>
       </select>
       <label for="customModel">Or enter a custom model (optional):</label>
-      <input type="text" id="customModel" placeholder="e.g., text-davinci-003">
+      <input
+        type="text"
+        id="customModel"
+        placeholder="e.g., text-davinci-003"
+      />
+      <p style="font-size: 0.9em; color: #555;">
+        Note: Model testing via the models endpoint is free. Text testing uses
+        tokens and may incur charges.
+      </p>
     </fieldset>
 
     <!-- Result Display -->
@@ -280,16 +316,21 @@
       <p>Open source project for security verification:</p>
       <p>
         <a href="https://github.com/Felix3322/keytest_src" target="_blank">
-          <img src="IMG_3788.png" width="40" height="40" alt="GitHub Repository">
+          <img
+            src="IMG_3788.png"
+            width="40"
+            height="40"
+            alt="GitHub Repository"
+          />
         </a>
       </p>
       <p>
-        Copyright © Felix3322.
-        Source code is for inspection only and may not be used for other purposes.
+        Copyright © Felix3322. Source code is for inspection only and may not
+        be used for other purposes.
       </p>
       <p>
-        Note: When using a third-party API base, the models endpoint may misreport the key’s validity.
-        It is recommended to use the "Text Test" method.
+        Note: When using a third-party API base, the models endpoint may misreport
+        the key’s validity. It is recommended to use the "Text Test" method.
       </p>
     </div>
   </div>
